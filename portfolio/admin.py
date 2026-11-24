@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.urls import path, reverse
 from django.utils.html import format_html
 
-from . import github
+from . import github, publish
 from .models import (
     Achievement,
     Certification,
@@ -19,8 +19,39 @@ from .models import (
 
 admin.site.site_header = "Portfolio studio"
 admin.site.site_title = "Portfolio studio"
-admin.site.index_title = "Edit your site — changes go live on save"
+admin.site.index_title = "Edit your site, then press Publish"
 admin.site.site_url = "/"
+admin.site.index_template = "admin/studio_index.html"
+
+
+_original_index = admin.site.index
+
+
+def _studio_index(request, extra_context=None):
+    extra_context = {
+        **(extra_context or {}),
+        "last_published": publish.last_published(),
+    }
+    try:
+        extra_context["live_url"] = publish.pages_url()
+    except publish.PublishError:
+        extra_context["live_url"] = None
+    return _original_index(request, extra_context)
+
+
+admin.site.index = _studio_index
+
+
+def publish_view(request):
+    """POST: build the static site and push it to GitHub Pages."""
+    if request.method == "POST":
+        try:
+            messages.success(request, publish.publish())
+        except publish.PublishError as exc:
+            messages.error(request, f"Publish failed: {exc}")
+        except Exception as exc:  # show anything unexpected instead of a 500
+            messages.error(request, f"Publish failed: {exc!r}")
+    return HttpResponseRedirect(reverse("admin:index"))
 
 
 @admin.register(SiteProfile)

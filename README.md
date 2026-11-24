@@ -4,6 +4,20 @@ A Django portfolio with a Three.js "latent space" hero, GSAP scroll motion and a
 admin "studio" so every word, project, metric, certificate and image can be edited
 without touching code.
 
+**Live:** https://yadu080.github.io/ (GitHub Pages, published from the studio)
+
+## Everyday editing (no code)
+
+1. Double-click **Open Portfolio Studio.command** in this folder. The first time, it asks
+   you to create a username and password for the studio.
+2. Your browser opens the studio. Edit anything and save; check it at http://127.0.0.1:8000.
+3. On the studio home page, press **Publish to the live site**. The public site updates in about a minute.
+
+Publishing renders every page to plain HTML and pushes it to the `Yadu080/yadu080.github.io`
+repository (change with `PORTFOLIO_PUBLISH_REPO=owner/name`). From a terminal:
+`python manage.py publish_site`. Your content lives in `db.sqlite3` and `media/` on this
+computer, so back that folder up.
+
 ## Run it locally
 
 ```bash
@@ -42,7 +56,7 @@ language, topics, stars and links filled in. Add metrics or a cover, tick **Publ
 The **Refresh stars / language** action re-syncs existing projects. Set `GITHUB_TOKEN` to
 raise GitHub's anonymous rate limit (optional).
 
-## Deploying (e.g. Render, Railway)
+## Alternative: run it as a live Django server (e.g. Render, Railway)
 
 - Build command: `./build.sh`
 - Start command: `gunicorn config.wsgi`

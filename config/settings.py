@@ -89,6 +89,10 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "media/"
 MEDIA_ROOT = Path(os.environ.get("DJANGO_MEDIA_ROOT", BASE_DIR / "media"))
 
+# GitHub Pages repository the studio publishes to ("owner/name").
+# Empty = <github_username>/<github_username>.github.io from Site profile.
+PUBLISH_REPO = os.environ.get("PORTFOLIO_PUBLISH_REPO", "")
+
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {
