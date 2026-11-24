@@ -1,0 +1,10 @@
+{% extends "portfolio/base.html" %}
+{% block title %}Not found — {{ profile.full_name }}{% endblock %}
+{% block content %}
+<section class="case__hero wrap notfound">
+  <p class="label">Error 404</p>
+  <h1 class="case__title">Nothing <em>here.</em></h1>
+  <p class="case__kicker">That page isn't in the index. The model says so plainly instead of guessing.</p>
+  <a class="btn" href="{% url 'home' %}"><span class="btn__text" data-text="Back to the work">Back to the work</span><span class="btn__arrow" aria-hidden="true">→</span></a>
+</section>
+{% endblock %}

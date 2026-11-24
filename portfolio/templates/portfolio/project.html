@@ -1,0 +1,76 @@
+{% extends "portfolio/base.html" %}
+{% block title %}{{ project.title }} — {{ profile.full_name }}{% endblock %}
+{% block description %}{{ project.summary|default:project.kicker }}{% endblock %}
+{% block body_class %}is-project{% endblock %}
+
+{% block content %}
+<article class="case">
+  <header class="case__hero wrap">
+    <a class="case__back mono" href="{% url 'home' %}#work">← All work</a>
+    <p class="label" data-hero-fade>{{ project.context|default:project.get_category_display }} · {{ project.year }}</p>
+    <h1 class="case__title"><span class="hero__line"><span data-split>{{ project.title }}</span></span></h1>
+    <p class="case__kicker" data-hero-fade>{{ project.kicker }}</p>
+
+    <dl class="case__facts" data-hero-fade>
+      <div><dt class="label">Role</dt><dd>{{ project.role|default:"—" }}</dd></div>
+      <div><dt class="label">Discipline</dt><dd>{{ project.get_category_display }}</dd></div>
+      <div class="case__facts-stack"><dt class="label">Stack</dt><dd>{{ project.stack_list|join:", " }}</dd></div>
+      <div><dt class="label">Links</dt><dd class="case__links">
+        {% if project.live_url %}<a class="link" href="{{ project.live_url }}" target="_blank" rel="noopener">Live ↗</a>{% endif %}
+        {% if project.repo_url %}<a class="link" href="{{ project.repo_url }}" target="_blank" rel="noopener">Code ↗</a>{% endif %}
+        {% if project.extra_url %}<a class="link" href="{{ project.extra_url }}" target="_blank" rel="noopener">{{ project.extra_label }} ↗</a>{% endif %}
+        {% if not project.live_url and not project.repo_url and not project.extra_url %}—{% endif %}
+      </dd></div>
+    </dl>
+  </header>
+
+  <figure class="case__cover wrap" data-reveal-media>
+    {% if project.cover %}
+      <img src="{{ project.cover.url }}" alt="{{ project.title }} — interface screenshot" decoding="async">
+    {% else %}
+      <canvas class="cover" data-cover="{{ project.cover_style }}" data-seed="{{ project.slug }}" data-label="{{ project.title }}"></canvas>
+    {% endif %}
+  </figure>
+
+  {% if project.metrics.all %}
+  <dl class="case__metrics wrap">
+    {% for m in project.metrics.all %}
+      <div data-reveal><dt>{{ m.label }}</dt><dd>{{ m.value }}</dd></div>
+    {% endfor %}
+  </dl>
+  {% endif %}
+
+  <div class="case__content wrap">
+    <aside class="case__aside">
+      <p class="label">Summary</p>
+      <p class="case__summary">{{ project.summary }}</p>
+    </aside>
+    <div class="prose">
+      {% if project.body %}
+        {{ project.body|markdown }}
+      {% else %}
+        <p>{{ project.summary }}</p>
+        {% if project.repo_url %}<p>The full write-up, setup instructions and source live in the <a href="{{ project.repo_url }}" target="_blank" rel="noopener">repository on GitHub</a>.</p>{% endif %}
+      {% endif %}
+    </div>
+  </div>
+
+  {% if project.images.all %}
+  <div class="case__gallery wrap">
+    {% for img in project.images.all %}
+      <figure data-reveal-media>
+        <img src="{{ img.image.url }}" alt="{{ img.caption|default:project.title }}" loading="lazy" decoding="async">
+        {% if img.caption %}<figcaption class="mono">{{ img.caption }}</figcaption>{% endif %}
+      </figure>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if next_project %}
+  <a class="next" href="{{ next_project.get_absolute_url }}">
+    <span class="label wrap">Next project</span>
+    <span class="next__title wrap">{{ next_project.title }} <span aria-hidden="true">→</span></span>
+  </a>
+  {% endif %}
+</article>
+{% endblock %}

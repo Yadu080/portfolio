@@ -1,0 +1,102 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ profile.full_name }} — {{ profile.role }}{% endblock %}</title>
+  <meta name="description" content="{% block description %}{{ profile.meta_description|default:profile.bio }}{% endblock %}">
+  <meta property="og:title" content="{{ profile.full_name }} — {{ profile.role }}">
+  <meta property="og:description" content="{{ profile.meta_description|default:profile.bio }}">
+  <meta name="theme-color" content="#0c0c0a">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230c0c0a'/%3E%3Ccircle cx='32' cy='32' r='9' fill='%23ff4d1a'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
+  <link rel="stylesheet" href="{% static 'portfolio/css/site.css' %}">
+  <link rel="stylesheet" href="{% static 'portfolio/css/sections.css' %}">
+  <script>
+    document.documentElement.classList.add('js');
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('motion');
+    // Never leave content hidden if animation scripts fail to load.
+    setTimeout(function () { if (!window.__siteReady) document.documentElement.classList.remove('motion'); }, 2500);
+  </script>
+  {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="nav" data-nav>
+    <a class="nav__mark" href="{% url 'home' %}" aria-label="{{ profile.full_name }}, home">
+      <span class="nav__dot" aria-hidden="true"></span>
+      <span>{{ profile.full_name }}</span>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="{% url 'home' %}#work" data-link>Work</a>
+      <a href="{% url 'home' %}#archive" data-link>Archive</a>
+      <a href="{% url 'home' %}#record" data-link>Record</a>
+      <a href="{% url 'home' %}#contact" data-link>Contact</a>
+    </nav>
+    <div class="nav__meta mono">
+      <span data-clock data-tz="{{ profile.timezone }}">—</span>
+      <span class="nav__sep" aria-hidden="true">/</span>
+      <span>{{ profile.location }}</span>
+    </div>
+    <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="menu" data-menu-toggle>
+      <span class="sr-only">Menu</span><span class="nav__bars" aria-hidden="true"></span>
+    </button>
+  </header>
+
+  <div class="menu" id="menu" data-menu hidden>
+    <nav aria-label="Mobile">
+      <a href="{% url 'home' %}#work">Work</a>
+      <a href="{% url 'home' %}#archive">Archive</a>
+      <a href="{% url 'home' %}#record">Record</a>
+      <a href="{% url 'home' %}#contact">Contact</a>
+    </nav>
+    <div class="menu__foot mono">
+      {% if profile.github_url %}<a href="{{ profile.github_url }}" target="_blank" rel="noopener">GitHub ↗</a>{% endif %}
+      {% if profile.linkedin_url %}<a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener">LinkedIn ↗</a>{% endif %}
+    </div>
+  </div>
+
+  <main id="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <div class="footer__grid">
+      <p class="footer__bio">{{ profile.bio }}</p>
+      <div>
+        <h2 class="label">Index</h2>
+        <ul class="footer__list">
+          <li><a href="{% url 'home' %}#work">Selected work</a></li>
+          <li><a href="{% url 'home' %}#archive">Archive</a></li>
+          <li><a href="{% url 'home' %}#record">Record</a></li>
+          <li><a href="{% url 'home' %}#contact">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2 class="label">Elsewhere</h2>
+        <ul class="footer__list">
+          {% if profile.github_url %}<li><a href="{{ profile.github_url }}" target="_blank" rel="noopener">GitHub ↗</a></li>{% endif %}
+          {% if profile.linkedin_url %}<li><a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener">LinkedIn ↗</a></li>{% endif %}
+          {% if profile.twitter_url %}<li><a href="{{ profile.twitter_url }}" target="_blank" rel="noopener">X / Twitter ↗</a></li>{% endif %}
+          {% if profile.resume %}<li><a href="{{ profile.resume.url }}" target="_blank" rel="noopener">Résumé (PDF) ↗</a></li>{% endif %}
+        </ul>
+      </div>
+    </div>
+    <div class="footer__base mono">
+      <span>© {% now "Y" %} {{ profile.full_name }}</span>
+      <span>Built with Django, Three.js &amp; GSAP</span>
+      <a href="#main" data-top>Back to top ↑</a>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+  <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js" defer></script>
+  <script src="{% static 'portfolio/js/covers.js' %}" defer></script>
+  <script src="{% static 'portfolio/js/site.js' %}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

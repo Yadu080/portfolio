@@ -1,0 +1,254 @@
+{% extends "portfolio/base.html" %}
+{% load static %}
+{% block body_class %}is-home{% endblock %}
+
+{% block content %}
+{# ================================================================ HERO #}
+<section class="hero" aria-labelledby="hero-name">
+  <canvas class="hero__canvas" data-latent aria-hidden="true"></canvas>
+  <div class="hero__labels" data-latent-labels aria-hidden="true"></div>
+
+  <div class="hero__top wrap">
+    <p class="label hero__kicker" data-hero-fade>{{ profile.role }} — Portfolio {% now "Y" %}</p>
+    <p class="hero__statement" data-hero-fade>{{ profile.statement|accent }}</p>
+  </div>
+
+  <div class="hero__bottom wrap">
+    <h1 class="hero__name" id="hero-name" aria-label="{{ profile.full_name }}">
+      <span class="hero__line" aria-hidden="true"><span data-split>{{ profile.hero_first_line }}</span></span>
+      <span class="hero__line hero__line--offset" aria-hidden="true"><span class="hero__initial">M.</span><span data-split>{{ profile.hero_second_line }}</span></span>
+    </h1>
+    <dl class="hero__meta" data-hero-fade>
+      <div><dt class="label">Currently</dt><dd>{{ profile.currently }}</dd></div>
+      <div><dt class="label">Status</dt><dd>{% if profile.open_to_work %}<span class="pulse" aria-hidden="true"></span>{% endif %}{{ profile.availability_text }}</dd></div>
+      <div class="hero__hint"><dt class="label">Above</dt><dd>{{ archive|length }} projects plotted as clusters in a latent space. Move the cursor to orbit.</dd></div>
+    </dl>
+  </div>
+  <a class="hero__scroll mono" href="#intro" aria-label="Scroll to introduction"><span>Scroll</span><span class="hero__scroll-line" aria-hidden="true"></span></a>
+</section>
+
+{# ================================================================ INTRO #}
+<section class="intro wrap" id="intro" aria-labelledby="intro-title">
+  <div class="intro__head">
+    <h2 class="label" id="intro-title"><span class="idx">01</span> About</h2>
+  </div>
+  <p class="intro__text" data-words>{{ profile.manifesto|accent }}</p>
+  <dl class="stats">
+    {% for s in stats %}
+      <div class="stat" data-reveal>
+        <dt class="stat__label">{{ s.label }}</dt>
+        <dd class="stat__value" data-count="{{ s.value }}">{{ s.value }}</dd>
+        {% if s.note %}<dd class="stat__note mono">{{ s.note }}</dd>{% endif %}
+      </div>
+    {% endfor %}
+  </dl>
+</section>
+
+{# ================================================================ WORK #}
+<section class="work-section" id="work" aria-labelledby="work-title">
+  <div class="wrap">
+    <header class="section-head">
+      <h2 class="label"><span class="idx">02</span> Selected work</h2>
+      <p class="section-head__title" id="work-title">Systems that <em>show their work</em></p>
+      <p class="section-head__count mono">({{ featured|length|pad2 }})</p>
+    </header>
+
+    {% for p in featured %}
+    <article class="work" data-work>
+      <a class="work__media" href="{{ p.get_absolute_url }}" data-reveal-media tabindex="-1" aria-hidden="true">
+        {% if p.cover %}
+          <img src="{{ p.cover.url }}" alt="" loading="lazy" decoding="async">
+        {% else %}
+          <canvas class="cover" data-cover="{{ p.cover_style }}" data-seed="{{ p.slug }}" data-label="{{ p.title }}"></canvas>
+        {% endif %}
+      </a>
+      <div class="work__body">
+        <p class="work__meta mono"><span>{{ forloop.counter|pad2 }}</span><span>{{ p.context|default:p.get_category_display }}</span><span>{{ p.year }}</span></p>
+        <h3 class="work__title"><a href="{{ p.get_absolute_url }}">{{ p.title }}</a></h3>
+        <p class="work__kicker">{{ p.kicker }}</p>
+        {% if p.metrics.all %}
+        <dl class="metrics">
+          {% for m in p.metrics.all|slice:":3" %}
+            <div><dt class="metrics__label">{{ m.label }}</dt><dd class="metrics__value">{{ m.value }}</dd></div>
+          {% endfor %}
+        </dl>
+        {% endif %}
+        <p class="work__stack mono">{{ p.stack_list|join:" / " }}</p>
+        <div class="work__links">
+          <a class="btn" href="{{ p.get_absolute_url }}"><span class="btn__text" data-text="Read case study">Read case study</span><span class="btn__arrow" aria-hidden="true">→</span></a>
+          {% if p.live_url %}<a class="link" href="{{ p.live_url }}" target="_blank" rel="noopener">Live ↗</a>{% endif %}
+          {% if p.repo_url %}<a class="link" href="{{ p.repo_url }}" target="_blank" rel="noopener">Code ↗</a>{% endif %}
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+{# ================================================================ ARCHIVE #}
+<section class="archive" id="archive" aria-labelledby="archive-title">
+  <div class="wrap">
+    <header class="section-head section-head--dark">
+      <h2 class="label"><span class="idx">03</span> Archive</h2>
+      <p class="section-head__title" id="archive-title">Everything, <em>indexed</em></p>
+      <p class="section-head__count mono">(<span data-archive-count>{{ archive|length|pad2 }}</span>)</p>
+    </header>
+
+    <div class="filters" role="group" aria-label="Filter projects by category">
+      <button type="button" class="filter" aria-pressed="true" data-filter="all">All <sup>{{ archive|length }}</sup></button>
+      {% for key, label in categories %}
+        <button type="button" class="filter" aria-pressed="false" data-filter="{{ key }}">{{ label }}</button>
+      {% endfor %}
+    </div>
+
+    <ol class="rows" data-rows>
+      <li class="rows__head mono" aria-hidden="true">
+        <span>Year</span><span>Project</span><span>Context</span><span>Stack</span><span></span>
+      </li>
+      {% for p in archive %}
+      <li class="row" data-category="{{ p.category }}">
+        <a class="row__link" href="{{ p.get_absolute_url }}"
+           {% if p.cover %}data-preview-img="{{ p.cover.url }}"{% else %}data-preview-style="{{ p.cover_style }}" data-preview-seed="{{ p.slug }}"{% endif %}>
+          <span class="row__year mono">{{ p.year }}</span>
+          <span class="row__title">{{ p.title }}<span class="row__kicker">{{ p.kicker }}</span></span>
+          <span class="row__context">{{ p.context|default:p.get_category_display }}</span>
+          <span class="row__stack mono">{{ p.stack_list|slice:":3"|join:" · " }}</span>
+          <span class="row__arrow" aria-hidden="true">→</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ol>
+    <p class="archive__note mono">New repositories are imported from GitHub in the site's studio — they appear here once published.</p>
+  </div>
+  <div class="preview" data-preview aria-hidden="true">
+    <div class="preview__inner"><img alt="" data-preview-target-img><canvas class="cover" data-preview-target-canvas></canvas></div>
+  </div>
+</section>
+
+{# ================================================================ RECORD #}
+<section class="record" id="record" aria-labelledby="record-title">
+  <div class="wrap record__grid">
+    <aside class="record__aside">
+      <div class="record__sticky">
+        <h2 class="label"><span class="idx">04</span> Record</h2>
+        <p class="record__title" id="record-title">Rankings, <em>credentials</em> &amp; the road so far</p>
+        <ul class="record__nav mono">
+          <li><a href="#honours">Honours</a></li>
+          <li><a href="#events">Hackathons</a></li>
+          <li><a href="#certs">Certifications · {{ certifications|length }}</a></li>
+          <li><a href="#education">Education</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <div class="record__main">
+      <div class="honours" id="honours">
+        {% for a in highlights %}
+        <article class="honour" data-reveal>
+          <p class="honour__big">{{ a.headline|default:a.year }}</p>
+          <div class="honour__text">
+            <h3>{{ a.title }}</h3>
+            <p class="honour__org mono">{{ a.organization }} · {{ a.year }}</p>
+            {% if a.description %}<p>{{ a.description }}</p>{% endif %}
+            {% if a.project and a.project.published %}<a class="link" href="{{ a.project.get_absolute_url }}">{{ a.project.title }} →</a>{% endif %}
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+
+      <h3 class="ledger-title label" id="events">Hackathons, datathons &amp; programs</h3>
+      <ul class="ledger">
+        {% for a in achievements %}
+        <li class="ledger__row" data-reveal>
+          <span class="ledger__year mono">{{ a.year }}</span>
+          <span class="ledger__main">{{ a.title }}<span class="ledger__sub">{{ a.organization }}</span></span>
+          <span class="ledger__end">{% if a.project and a.project.published %}<a class="link" href="{{ a.project.get_absolute_url }}">Project →</a>{% elif a.link %}<a class="link" href="{{ a.link }}" target="_blank" rel="noopener">Link ↗</a>{% endif %}</span>
+        </li>
+        {% endfor %}
+      </ul>
+
+      <h3 class="ledger-title label" id="certs">Licences &amp; certifications</h3>
+      <ul class="ledger ledger--certs">
+        {% for c in certifications %}
+        <li class="ledger__row" data-reveal>
+          <span class="ledger__year mono">{{ c.issued|date:"M Y" }}</span>
+          <span class="ledger__main">{{ c.title }}<span class="ledger__sub">{{ c.issuer }}{% if c.skills %} — {{ c.skills }}{% endif %}</span></span>
+          <span class="ledger__end">{% if c.credential_url %}<a class="link" href="{{ c.credential_url }}" target="_blank" rel="noopener">Verify ↗</a>{% endif %}</span>
+        </li>
+        {% endfor %}
+      </ul>
+
+      <h3 class="ledger-title label" id="education">Education &amp; service</h3>
+      <ol class="timeline">
+        {% for e in education %}
+        <li class="timeline__item" data-reveal>
+          <span class="timeline__period mono">{{ e.period }}</span>
+          <div>
+            <h4>{{ e.title }}</h4>
+            <p class="timeline__org">{{ e.organization }}{% if e.detail %} · <strong>{{ e.detail }}</strong>{% endif %}</p>
+            {% if e.description %}<p class="timeline__desc">{{ e.description }}</p>{% endif %}
+          </div>
+        </li>
+        {% endfor %}
+        {% for e in experience %}
+        <li class="timeline__item" data-reveal>
+          <span class="timeline__period mono">{{ e.period }}</span>
+          <div>
+            <h4>{{ e.title }} <span class="tag mono">{{ e.get_kind_display }}</span></h4>
+            <p class="timeline__org">{{ e.organization }}{% if e.detail %} · {{ e.detail }}{% endif %}</p>
+            {% if e.description %}<p class="timeline__desc">{{ e.description }}</p>{% endif %}
+          </div>
+        </li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+</section>
+
+{# ================================================================ TOOLKIT #}
+<section class="toolkit" aria-labelledby="toolkit-title">
+  {% if marquee %}
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track">
+      {% for i in "12" %}<span class="marquee__group">{% for s in marquee %}<span>{{ s }}</span><span class="marquee__dot">●</span>{% endfor %}</span>{% endfor %}
+    </div>
+  </div>
+  {% endif %}
+  <div class="wrap toolkit__grid">
+    <h2 class="label" id="toolkit-title"><span class="idx">05</span> Toolkit</h2>
+    {% for g in skill_groups %}
+    <div class="toolkit__group" data-reveal>
+      <h3>{{ g.name }}</h3>
+      <ul>{% for s in g.skill_list %}<li>{{ s }}</li>{% endfor %}</ul>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+{# ================================================================ CONTACT #}
+<section class="contact" id="contact" aria-labelledby="contact-title">
+  <div class="wrap">
+    <h2 class="label"><span class="idx">06</span> Contact</h2>
+    <p class="contact__title" id="contact-title" data-words>{{ profile.closing_heading|accent }}</p>
+    <div class="contact__row">
+      {% if profile.email %}
+      <a class="contact__mail" href="mailto:{{ profile.email }}" data-magnetic>
+        <span>{{ profile.email }}</span><span class="contact__mail-arrow" aria-hidden="true">↗</span>
+      </a>
+      {% endif %}
+      <ul class="contact__links mono">
+        {% if profile.linkedin_url %}<li><a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener">LinkedIn ↗</a></li>{% endif %}
+        {% if profile.github_url %}<li><a href="{{ profile.github_url }}" target="_blank" rel="noopener">GitHub ↗</a></li>{% endif %}
+        {% if profile.resume %}<li><a href="{{ profile.resume.url }}" target="_blank" rel="noopener">Résumé ↗</a></li>{% endif %}
+      </ul>
+    </div>
+  </div>
+</section>
+
+{{ categories|json_script:"latent-clusters" }}
+{% endblock %}
+
+{% block scripts %}
+<script type="importmap">{"imports": {"three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+<script type="module" src="{% static 'portfolio/js/latent.js' %}"></script>
+{% endblock %}
